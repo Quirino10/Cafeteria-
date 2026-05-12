@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <link rel="icon" href="https://i.postimg.cc/66jfVZJh/Webfluxo.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafeteria - Pedido Online</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+.container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 { text-align: center; color: #5D4037; margin-bottom: 20px; }
+        h2 { color: #795548; border-bottom: 2px solid #D7CCC8; padding-bottom: 5px; margin: 25px 0 15px; }
+.produtos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+.produto {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+.produto:hover { transform: translateY(-5px); }
+.produto img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+.produto-info {
+            padding: 15px;
+        }
+.produto h3 {
+            font-size: 18px;
+            margin: 0 0 10px;
+            color: #3E2723;
+        }
+.produto p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            min-height: 40px;
+        }
+.produto.preco {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 10px 0;
+        }
+.adicionar-carrinho {
+            width: 100%;
+            background-color: #5D4037;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+.adicionar-carrinho:hover { background-color: #3E2723; }
+        #carrinho {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+.item-carrinho {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+.item-info { flex: 1; }
+.quantidade {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+.quantidade button {
+            background-color: #5D4037;
+            color: #fff;
+            padding: 5px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+.excluir-pedido {
+            background-color: #dc3545;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+.dados-cliente {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+.form-group {
+            margin-bottom: 15px;
+        }
+.form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #5D4037;
+            font-size: 14px;
+        }
+.form-group input,.form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: inherit;
+        }
+.form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+.form-group input:focus,.form-group textarea:focus {
+            outline: none;
+            border-color: #5D4037;
+        }
+.pagamento {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+.pagamento label {
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+.pagamento input[type="radio"] {
+            margin-right: 10px;
+        }
+        #enviar-pedido {
+            width: 100%;
+            background-color: #25D366;
+            color: #fff;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #enviar-pedido:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #total {
+            font-size: 22px;
+            font-weight: bold;
+            color: #3E2723;
+            text-align: right;
+            margin-top: 15px;
+        }
+.vazio {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+.erro {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>☕ Cafeteria</h1>
+
+        <h2>Cafés</h2>
+        <div class="produtos-grid">
+            <div class="produto">
+                <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400" alt="Café Expresso">
+                <div class="produto-info">
+                    <h3>Café Expresso</h3>
+                    <p>Café expresso puro e encorpado.</p>
+                    <p class="preco">R$ 5,00</p>
+                    <button class="adicionar-carrinho" data-preco="5.00" data-nome="Café Expresso">Adicionar ao Carrinho</button>
+                </div>
+            <div class="produto">
+                <img src="https://images.unsplash.com/photo-1534778101976-62847782c213?w=400" alt="Café Capuccino">
+                <div class="produto-info">
+                    <h3>Café Capuccino</h3>
+                    <p>Café capuccino com leite e espuma cremosa.</p>
+                    <p class="preco">R$ 8,00</p>
+                    <button class="adicionar-carrinho" data-preco="8.00" data-nome="Café Capuccino">Adicionar ao Carrinho</button>
+                </div>
+            <div class="produto">
+                <img src="https://i.postimg.cc/CMQ1bfBC/ross-parmly-IWZX30x-ASYQ-unsplash.jpg" alt="Café com Creme">
+                <div class="produto-info">
+                    <h3>Café com Creme</h3>
+                    <p>Café suave com creme e açúcar.</p>
+                    <p class="preco">R$ 7,00</p>
+                    <button class="adicionar-carrinho" data-preco="7.00" data-nome="Café com Creme">Adicionar ao Carrinho</button>
+                </div>
+            </div>
+        </div>
+
+        <h2>Sobremesas</h2>
+        <div class="produtos-grid">
+            <div class="produto">
+                <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400" alt="Torta de Chocolate">
+                <div class="produto-info">
+                    <h3>Torta de Chocolate</h3>
+                    <p>Torta de chocolate com cobertura derretida.</p>
+                    <p class="preco">R$ 10,00</p>
+                    <button class="adicionar-carrinho" data-preco="10.00" data-nome="Torta de Chocolate">Adicionar ao Carrinho</button>
+                </div>
+            <div class="produto">
+                <img src="https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=400" alt="Cheesecake">
+                <div class="produto-info">
+                    <h3>Cheesecake</h3>
+                    <p>Cheesecake tradicional com calda de frutas vermelhas.</p>
+                    <p class="preco">R$ 12,00</p>
+                    <button class="adicionar-carrinho" data-preco="12.00" data-nome="Cheesecake">Adicionar ao Carrinho</button>
+                </div>
+            </div>
+        </div>
+
+        <h2>Bebidas</h2>
+        <div class="produtos-grid">
+            <div class="produto">
+                <img src="https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=400" alt="Suco Verde">
+                <div class="produto-info">
+                    <h3>Suco Verde</h3>
+                    <p>Suco verde detox com couve, maçã e limão.</p>
+                    <p class="preco">R$ 8,00</p>
+                    <button class="adicionar-carrinho" data-preco="8.00" data-nome="Suco Verde">Adicionar ao Carrinho</button>
+                </div>
+            <div class="produto">
+                <img src="https://i.postimg.cc/x87WqQdX/abhishek-hajare-kkr-XVKK-jhg-unsplash.jpg" alt="Suco Natural">
+                <div class="produto-info">
+                    <h3>Suco Natural</h3>
+                    <p>Suco natural da fruta. Pergunte os sabores disponíveis.</p>
+                    <p class="preco">R$ 7,00</p>
+                    <button class="adicionar-carrinho" data-preco="7.00" data-nome="Suco Natural">Adicionar ao Carrinho</button>
+                </div>
+            <div class="produto">
+                <img src="https://i.postimg.cc/1RJF2tgz/charlesdeluvio-Z2NCX2q-IIjg-unsplash.jpg" alt="Água em Garrafa">
+                <div class="produto-info">
+                    <h3>Água Mineral</h3>
+                    <p>Água mineral sem gás 500ml.</p>
+                    <p class="preco">R$ 2,00</p>
+                    <button class="adicionar-carrinho" data-preco="2.00" data-nome="Água Mineral">Adicionar ao Carrinho</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="carrinho">
+            <h2>🛒 Seu Carrinho</h2>
+            <div id="lista-carrinho">
+                <p class="vazio">Carrinho vazio</p>
+            </div>
+            <p id="total">Total: R$ 0,00</p>
+        </div>
+
+        <div class="dados-cliente">
+            <h2>📝 Dados do Pedido</h2>
+            <div class="form-group">
+                <label for="nome-cliente">Nome do Cliente *</label>
+                <input type="text" id="nome-cliente" placeholder="Ex: João Silva">
+                <span class="erro" id="erro-nome">Preencha o nome do cliente</span>
+            </div>
+            <div class="form-group">
+                <label for="numero-mesa">Número da Mesa *</label>
+                <input type="number" id="numero-mesa" placeholder="Ex: 5" min="1">
+                <span class="erro" id="erro-mesa">Preencha o número da mesa</span>
+            </div>
+            <div class="form-group">
+                <label for="observacoes">Observações do Pedido</label>
+                <textarea id="observacoes" placeholder="Ex: Café sem açúcar, Suco de maracujá, Leite quente separado..."></textarea>
+            </div>
+        </div>
+
+        <div class="pagamento">
+            <h2>💳 Forma de Pagamento:</h2>
+            <input type="radio" id="pix" name="pagamento" value="pix" checked>
+            <label for="pix">Pagar via PIX - Chave: 81920027412</label>
+            <br><br>
+            <input type="radio" id="balcao" name="pagamento" value="balcao">
+            <label for="balcao">Pagar no Balcão</label>
+        </div>
+
+        <button id="enviar-pedido" disabled>Enviar Pedido pelo WhatsApp</button>
+    </div>
+
+    <script>
+        let carrinho = [];
+        let total = 0;
+        const numeroWhatsApp = '5581981212837';
+
+        document.querySelectorAll('.adicionar-carrinho').forEach(button => {
+            button.addEventListener('click', () => {
+                const nome = button.dataset.nome;
+                const preco = parseFloat(button.dataset.preco);
+                adicionarAoCarrinho(nome, preco);
+            });
+        });
+
+        document.getElementById('nome-cliente').addEventListener('input', validarFormulario);
+        document.getElementById('numero-mesa').addEventListener('input', validarFormulario);
+
+        function validarFormulario() {
+            const nome = document.getElementById('nome-cliente').value.trim();
+            const mesa = document.getElementById('numero-mesa').value.trim();
+            const btnEnviar = document.getElementById('enviar-pedido');
+
+            document.getElementById('erro-nome').style.display = nome? 'none' : 'block';
+            document.getElementById('erro-mesa').style.display = mesa? 'none' : 'block';
+
+            btnEnviar.disabled =!(nome && mesa && carrinho.length > 0);
+        }
+
+        function adicionarAoCarrinho(nome, preco) {
+            const itemExistente = carrinho.find(item => item.nome === nome);
+            if (itemExistente) {
+                itemExistente.quantidade++;
+            } else {
+                carrinho.push({ nome, preco, quantidade: 1 });
+            }
+            total += preco;
+            atualizarCarrinho();
+        }
+
+        function subtrairDoCarrinho(index) {
+            if (carrinho[index].quantidade > 1) {
+                carrinho[index].quantidade--;
+                total -= carrinho[index].preco;
+            } else {
+                total -= carrinho[index].preco;
+                carrinho.splice(index, 1);
+            }
+            atualizarCarrinho();
+        }
+
+        function excluirDoCarrinho(index) {
+            total -= carrinho[index].preco * carrinho[index].quantidade;
+            carrinho.splice(index, 1);
+            atualizarCarrinho();
+        }
+
+        function atualizarCarrinho() {
+            const listaCarrinho = document.getElementById('lista-carrinho');
+            const btnEnviar = document.getElementById('enviar-pedido');
+            const nome = document.getElementById('nome-cliente').value.trim();
+            const mesa = document.getElementById('numero-mesa').value.trim();
+
+            if (carrinho.length === 0) {
+                listaCarrinho.innerHTML = '<p class="vazio">Carrinho vazio</p>';
+                btnEnviar.disabled = true;
+            } else {
+                listaCarrinho.innerHTML = '';
+                btnEnviar.disabled =!(nome && mesa);
+
+                carrinho.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.classList.add('item-carrinho');
+
+                    div.innerHTML = `
+                        <div class="item-info">
+                            <strong>${item.nome}</strong><br>
+                            R$ ${item.preco.toFixed(2)} x ${item.quantidade} = R$ ${(item.preco * item.quantidade).toFixed(2)}
+                        </div>
+                        <div class="quantidade">
+                            <button onclick="subtrairDoCarrinho(${index})">-</button>
+                            <span>${item.quantidade}</span>
+                            <button onclick="adicionarAoCarrinho('${item.nome}', ${item.preco})">+</button>
+                            <button class="excluir-pedido" onclick="excluirDoCarrinho(${index})">Excluir</button>
+                        </div>
+                    `;
+                    listaCarrinho.appendChild(div);
+                });
+            }
+            document.getElementById('total').textContent = `Total: R$ ${total.toFixed(2)}`;
+            validarFormulario();
+        }
+
+        document.getElementById('enviar-pedido').addEventListener('click', () => {
+            const nomeCliente = document.getElementById('nome-cliente').value.trim();
+            const numeroMesa = document.getElementById('numero-mesa').value.trim();
+            const observacoes = document.getElementById('observacoes').value.trim();
+
+            if (carrinho.length === 0) {
+                alert('Adicione itens ao carrinho primeiro!');
+                return;
+            }
+            if (!nomeCliente ||!numeroMesa) {
+                alert('Preencha nome do cliente e número da mesa!');
+                return;
+            }
+
+            const pagamento = document.querySelector('input[name="pagamento"]:checked').value;
+            const formaPagamento = pagamento === 'pix'? 'PIX - Chave: 81920027412' : 'Pagar no Balcão';
+
+            let mensagem = `*PEDIDO CAFETERIA*%0A%0A`;
+            mensagem += `*Cliente:* ${nomeCliente}%0A`;
+            mensagem += `*Mesa:* ${numeroMesa}%0A%0A`;
+            mensagem += `*Itens:*%0A`;
+            carrinho.forEach(item => {
+                mensagem += `• ${item.nome} - R$ ${item.preco.toFixed(2)} x ${item.quantidade} = R$ ${(item.preco * item.quantidade).toFixed(2)}%0A`;
+            });
+            if (observacoes) {
+                mensagem += `%0A*Observações:* ${observacoes}%0A`;
+            }
+            mensagem += `%0A*Total: R$ ${total.toFixed(2)}*%0A`;
+            mensagem += `*Pagamento:* ${formaPagamento}%0A%0A`;
+            mensagem += `Por favor, confirme meu pedido!`;
+
+            window.open(`https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${mensagem}`, '_blank');
+        });
+
+        validarFormulario();
+    </script>
+</body>
+</html>
